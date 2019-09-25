@@ -2,12 +2,18 @@
 from woocommerce import API
 import sys
 
+# read secrets from a file, so they aren't committed to git repo.
+# two values are needed, consumer_key and consumer_secret.
+secrets = {}
+with open('wordpress_secrets.json') as file:
+    exec(file.read(), secrets)
+
 # Replace consumer_key and consumer_secret before running - it can be found
 # in the email chain entitled "Python script to list subscribers"
 wcapi = API(
     url="https://boulderlifting.com",
-    consumer_key="XXXXXXXXXXX",
-    consumer_secret="XXXXXXXXXXX",
+    consumer_key=secrets['consumer_key'],
+    consumer_secret=secrets['consumer_secret'],
     wp_api=True,
     version="wc/v1",
     query_string_auth=True
