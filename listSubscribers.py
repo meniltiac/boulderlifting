@@ -13,6 +13,11 @@ wcapi = API(
     query_string_auth=True
 )
 
+def print_list(title, l):
+    print("\n%s DUPLICATES (%d):" % (title, len(l)))
+    print("---------------------------------------------------------------------------------------")
+    print(', '.join(l))
+
 def main(args=None):
     page = 0    
     accounts = {}
@@ -29,8 +34,18 @@ def main(args=None):
     print("\n%d pages" % (page))
     
     for account_status in accounts.keys():
-        print("\n%s (%d):" % (account_status, len(accounts[account_status])))
-        print(', '.join(accounts[account_status]))
+        acct_list = accounts[account_status]
+        # remove duplicates that are also in the 'active' list.
+        # these duplicates occur when somoene canceled but signed up again
+        dups = []
+        if account_status != 'active':
+            for a in acct_list:
+                if a in accounts['active']:
+                    acct_list.remove(a)
+                    dups.append(a)
+            print_list(account_status + ' DUPLICATES', dups)
+            
+        print_list(account_status, acct_list)
 
 if __name__ == "__main__":
     main()
