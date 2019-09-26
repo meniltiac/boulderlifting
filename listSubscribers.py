@@ -20,24 +20,35 @@ wcapi = API(
 )
 
 def print_list(title, l):
-    print("\n%s DUPLICATES (%d):" % (title, len(l)))
+    print("\n%s (%d):" % (title, len(l)))
     print("---------------------------------------------------------------------------------------")
     print(', '.join(l))
 
 def main(args=None):
     page = 0    
     accounts = {}
+    total_income = 0.0
+    members = 0
 
     while(1):
         page += 1
         subscribers = wcapi.get("subscriptions?page="+str(page)).json()
+        print('.', end='', flush=True)
         if len(subscribers) == 0:
             break
         for subscriber in subscribers:
             if not subscriber["status"] in accounts:
                 accounts[subscriber["status"]] = []
             accounts[subscriber["status"]].append(subscriber["billing"]["email"])
-    print("\n%d pages" % (page))
+            if subscriber["status"] == 'active':
+                #print(subscriber['line_items'])
+                for li in subscriber['line_items']:
+                    price = float(li["total"])
+                    if price > 0.01:
+                        total_income += price
+                        members += int(li["quantity"])
+    print(" %d pages" % (page))
+    print("%d paid memberships, $%.2f / month ($%.0f/member)" % (members, total_income, total_income/members))
     
     for account_status in accounts.keys():
         acct_list = accounts[account_status]
@@ -49,7 +60,8 @@ def main(args=None):
                 if a in accounts['active']:
                     acct_list.remove(a)
                     dups.append(a)
-            print_list(account_status + ' DUPLICATES', dups)
+            if len(dups) > 0:
+                print_list(account_status + ' DUPLICATES', dups)
             
         print_list(account_status, acct_list)
 
