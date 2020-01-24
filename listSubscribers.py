@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 from woocommerce import API
 import sys
+import json
 
 # read secrets from a file, so they aren't committed to git repo.
 # two values are needed, consumer_key and consumer_secret.
+# format should be like this, but with real key/secret values:
+#{
+#    "consumer_key": "foo",
+#    "consumer_secret": "bar"
+#}
+
 secrets = {}
 with open('wordpress_secrets.json') as file:
-    exec(file.read(), secrets)
+    secrets = json.load(file)
 
 # Replace consumer_key and consumer_secret before running - it can be found
 # in the email chain entitled "Python script to list subscribers"
